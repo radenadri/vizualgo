@@ -21,7 +21,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                 value: value,
                 x: ROOT_X,
                 y: ROOT_Y,
-                description: `Creating root node ${value}`
+                description: `Creating root node ${value}`,
+                highlightLines: [6, 7, 8] // if (!this.root) { this.root = node; return; }
             }
             return
         }
@@ -36,7 +37,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
             type: 'select',
             indices: [],
             nodeId: currentId,
-            description: `Starting at root: ${nodes[currentId].value}`
+            description: `Starting at root: ${nodes[currentId].value}`,
+            highlightLines: [11] // let current = this.root
         }
 
         while (true) {
@@ -48,7 +50,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                 type: 'compare',
                 indices: [],
                 nodeId: currentId,
-                description: `Comparing ${value} with ${currentNode.value}`
+                description: `Comparing ${value} with ${currentNode.value}`,
+                highlightLines: [13] // if (value < current.value)
             }
 
             if (value < currentNode.value) {
@@ -65,7 +68,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         value: value,
                         x: childX,
                         y: childY,
-                        description: `${value} < ${currentNode.value}, inserting left`
+                        description: `${value} < ${currentNode.value}, inserting left`,
+                        highlightLines: [14, 15, 16] // if (!current.left) { current.left = node; return; }
                     }
 
                     yield {
@@ -73,7 +77,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         indices: [],
                         nodeId: currentId,
                         targetId: newNodeId,
-                        description: `Linking ${currentNode.value} to ${value}`
+                        description: `Linking ${currentNode.value} to ${value}`,
+                        highlightLines: [15] // current.left = node
                     }
                     return
                 } else {
@@ -82,7 +87,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         type: 'visit',
                         indices: [],
                         nodeId: currentNode.leftId,
-                        description: `${value} < ${currentNode.value}, moving left`
+                        description: `${value} < ${currentNode.value}, moving left`,
+                        highlightLines: [18] // current = current.left
                     }
                     currentId = currentNode.leftId
                     horizontalSpan = nextSpan
@@ -101,7 +107,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         value: value,
                         x: childX,
                         y: childY,
-                        description: `${value} >= ${currentNode.value}, inserting right`
+                        description: `${value} >= ${currentNode.value}, inserting right`,
+                        highlightLines: [20, 21, 22] // if (!current.right) { current.right = node; return; }
                     }
 
                     yield {
@@ -109,7 +116,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         indices: [],
                         nodeId: currentId,
                         targetId: newNodeId,
-                        description: `Linking ${currentNode.value} to ${value}`
+                        description: `Linking ${currentNode.value} to ${value}`,
+                        highlightLines: [21] // current.right = node
                     }
                     return
                 } else {
@@ -118,7 +126,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         type: 'visit',
                         indices: [],
                         nodeId: currentNode.rightId,
-                        description: `${value} >= ${currentNode.value}, moving right`
+                        description: `${value} >= ${currentNode.value}, moving right`,
+                        highlightLines: [24] // current = current.right
                     }
                     currentId = currentNode.rightId
                     horizontalSpan = nextSpan
@@ -137,7 +146,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
             type: 'select',
             indices: [],
             nodeId: currentId,
-            description: `Searching for ${value}`
+            description: `Searching for ${value}`,
+            highlightLines: [30] // let current = this.root
         }
 
         while (currentId) {
@@ -147,7 +157,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                 type: 'compare',
                 indices: [],
                 nodeId: currentId,
-                description: `Comparing ${value} with ${currentNode.value}`
+                description: `Comparing ${value} with ${currentNode.value}`,
+                highlightLines: [33] // if (value === current.value)
             }
 
             if (currentNode.value === value) {
@@ -155,7 +166,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                     type: 'sorted', // Found!
                     indices: [],
                     nodeId: currentId,
-                    description: `Found ${value}!`
+                    description: `Found ${value}!`,
+                    highlightLines: [34] // return current
                 }
                 return
             }
@@ -166,7 +178,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         type: 'visit',
                         indices: [],
                         nodeId: currentNode.leftId,
-                        description: `${value} < ${currentNode.value}, going left`
+                        description: `${value} < ${currentNode.value}, going left`,
+                        highlightLines: [36, 37] // if (value < current.value) { current = current.left }
                     }
                     currentId = currentNode.leftId
                 } else {
@@ -178,7 +191,8 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                         type: 'visit',
                         indices: [],
                         nodeId: currentNode.rightId,
-                        description: `${value} > ${currentNode.value}, going right`
+                        description: `${value} > ${currentNode.value}, going right`,
+                        highlightLines: [39, 40] // else { current = current.right }
                     }
                     currentId = currentNode.rightId
                 } else {
@@ -186,7 +200,5 @@ export const bstAlgorithm: BSTAlgorithm = function* (rootId, nodes, operation, p
                 }
             }
         }
-
-        // Not found logic?
     }
 }
