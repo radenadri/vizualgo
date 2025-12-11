@@ -6,6 +6,7 @@ export type AnimationType =
   | 'pivot'   // Marking a pivot (quick sort)
   | 'sorted'  // Marking elements as final/sorted
   | 'visit'   // Visiting a node (pathfinding)
+  | 'explore' // Exploring a neighbor (pathfinding)
   | 'path'    // Marking a node as part of the path (pathfinding)
   | 'wall'    // Marking a node as a wall (optional)
   // Linked List specific
@@ -14,6 +15,7 @@ export type AnimationType =
   | 'link'    // Linking two nodes
   | 'unlink'  // Unlinking nodes
   | 'select'  // Selecting a node (e.g. current traversal)
+
 
 export interface AnimationStep {
   type: AnimationType
@@ -43,20 +45,20 @@ export interface GridNode {
 }
 
 export interface LinkedListNode {
-    id: string
-    value: number
-    nextId: string | null
-    highlight?: boolean
+  id: string
+  value: number
+  nextId: string | null
+  highlight?: boolean
 }
 
 export interface BSTNode {
-    id: string
-    value: number
-    leftId: string | null
-    rightId: string | null
-    x: number
-    y: number
-    highlight?: boolean
+  id: string
+  value: number
+  leftId: string | null
+  rightId: string | null
+  x: number
+  y: number
+  highlight?: boolean
 }
 
 export type AlgorithmType = 'sorting' | 'pathfinding' | 'linkedlist' | 'bst'
@@ -72,14 +74,14 @@ export type PathfindingAlgorithm = (
 ) => Generator<AnimationStep, void, unknown>
 
 export type LinkedListAlgorithm = (
-    list: LinkedListNode[], 
-    operation: string,
-    payload: any
+  list: LinkedListNode[],
+  operation: string,
+  payload: any
 ) => Generator<AnimationStep, void, unknown>
 
 export type BSTAlgorithm = (
-    rootId: string | null,
-    nodes: Record<string, BSTNode>,
-    operation: string,
-    payload: any
+  rootId: string | null,
+  nodes: Record<string, BSTNode>,
+  operation: string,
+  payload: any
 ) => Generator<AnimationStep, void, unknown>
