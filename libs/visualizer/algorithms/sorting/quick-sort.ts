@@ -1,6 +1,6 @@
 import type { SortingAlgorithm, AnimationStep } from '../../types'
 
-export const quickSort: SortingAlgorithm = function*(array) {
+export const quickSort: SortingAlgorithm = function* (array) {
   yield* quickSortHelper(array, 0, array.length - 1)
 }
 
@@ -10,57 +10,57 @@ function* quickSortHelper(
   endIdx: number
 ): Generator<AnimationStep, void, unknown> {
   if (startIdx >= endIdx) return
-  
+
   const pivotIdx = startIdx
   let leftIdx = startIdx + 1
   let rightIdx = endIdx
-  
+
   yield {
     type: 'pivot',
     indices: [pivotIdx],
     description: `Pivot selected: ${array[pivotIdx]}`,
-    highlightLines: []
+    highlightLines: [9] // const pivot = arr[high]
   }
-  
+
   while (rightIdx >= leftIdx) {
     yield {
       type: 'compare',
       indices: [leftIdx, rightIdx, pivotIdx],
       description: `Comparing elements with pivot`,
-      highlightLines: []
+      highlightLines: [14, 15] // comparison in partition
     }
-    
+
     if (array[leftIdx] > array[pivotIdx] && array[rightIdx] < array[pivotIdx]) {
       yield {
         type: 'swap',
         indices: [leftIdx, rightIdx],
         description: `Swapping ${array[leftIdx]} and ${array[rightIdx]}`,
-        highlightLines: []
+        highlightLines: [17] // swap
       }
       swap(leftIdx, rightIdx, array)
     }
-    
+
     if (array[leftIdx] <= array[pivotIdx]) leftIdx++
     if (array[rightIdx] >= array[pivotIdx]) rightIdx--
   }
-  
+
   yield {
     type: 'swap',
     indices: [pivotIdx, rightIdx],
     description: `Moving pivot to correct position`,
-    highlightLines: []
+    highlightLines: [20] // final swap
   }
   swap(pivotIdx, rightIdx, array)
-  
+
   yield {
-      type: 'sorted',
-      indices: [rightIdx],
-      description: `${array[rightIdx]} is now in sorted position`,
-      highlightLines: []
+    type: 'sorted',
+    indices: [rightIdx],
+    description: `${array[rightIdx]} is now in sorted position`,
+    highlightLines: [21] // return i + 1
   }
-  
+
   const leftSubarrayIsSmaller = rightIdx - 1 - startIdx < endIdx - (rightIdx + 1)
-  
+
   if (leftSubarrayIsSmaller) {
     yield* quickSortHelper(array, startIdx, rightIdx - 1)
     yield* quickSortHelper(array, rightIdx + 1, endIdx)
