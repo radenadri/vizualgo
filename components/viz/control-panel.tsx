@@ -50,6 +50,34 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
     setPlaying(!isPlaying)
   }
 
+  // For data structures: replay from beginning without adding new nodes
+  const handleDataStructurePlay = () => {
+    if (isPlaying) {
+      setPlaying(false)
+    } else if (steps.length > 0) {
+      // If at the end or somewhere in the middle, reset to beginning and play
+      if (currentStepIndex >= steps.length - 1 || currentStepIndex > -1) {
+        // Reset to start of animation
+        // For linked list: remove nodes that were added during this animation to avoid duplicate keys
+        const state = useVisualizerStore.getState()
+        const nodeIdsInSteps = new Set(
+          steps
+            .filter(s => s.type === 'create' && s.nodeId)
+            .map(s => s.nodeId)
+        )
+        const linkedListWithoutAnimatedNodes = state.linkedList.filter(
+          node => !nodeIdsInSteps.has(node.id)
+        )
+        useVisualizerStore.setState({ 
+          currentStepIndex: -1,
+          linkedList: linkedListWithoutAnimatedNodes
+        })
+      }
+      setPlaying(true)
+    }
+    // If no steps, do nothing (button should be disabled anyway)
+  }
+
   // Auto-play after data structure action
   const handleDataStructureAction = (operation: string) => {
     const val = Number(inputValue) || Math.floor(Math.random() * 100)
@@ -148,7 +176,7 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
         </div>
       )}
 
-      <div className="h-4 w-[1px] bg-neutral-200 hidden sm:block" />
+      <div className="h-4 w-px bg-neutral-200 hidden sm:block" />
       
       {/* Playback controls - only show for sorting/pathfinding */}
       {(mode === 'sorting' || mode === 'pathfinding') && (
@@ -186,7 +214,7 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
         </div>
       )}
 
-      {/* Minimal controls for data structures */}
+      {/* Playback controls for data structures */}
       {(mode === 'linkedlist' || mode === 'bst') && (
         <div className="flex items-center gap-1">
           <button 
@@ -195,14 +223,31 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
           >
             Clear All
           </button>
-          {isPlaying && (
-            <button 
-              onClick={() => setPlaying(false)}
-              className="px-3 py-1.5 border border-amber-500 text-amber-600 transition-colors"
-            >
-              Pause
-            </button>
-          )}
+          <button 
+            onClick={prevStep}
+            disabled={isPlaying || currentStepIndex <= -1}
+            className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
+          >
+            Prev
+          </button>
+          <button 
+            onClick={handleDataStructurePlay}
+            disabled={steps.length === 0}
+            className={`px-4 py-1.5 border transition-colors disabled:opacity-30 ${
+              isPlaying 
+                ? 'border-amber-500 text-amber-600' 
+                : 'border-neutral-400 text-neutral-700 hover:bg-neutral-100'
+            }`}
+          >
+            {isPlaying ? 'Pause' : 'Play'}
+          </button>
+          <button 
+            onClick={nextStep}
+            disabled={isPlaying || currentStepIndex >= steps.length - 1}
+            className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
+          >
+            Next
+          </button>
         </div>
       )}
 
