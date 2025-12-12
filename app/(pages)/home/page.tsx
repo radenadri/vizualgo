@@ -231,7 +231,13 @@ export default function Home() {
               
               {content.tips && (
                 <p className="mt-4 text-sm text-neutral-400 border-l-2 border-neutral-200 pl-4">
-                  {content.tips}
+                  <span className="font-medium text-neutral-900">Tips:</span> {content.tips}
+                </p>
+              )}
+
+              {content.realWorldExample && (
+                <p className="mt-4 text-sm text-neutral-400 border-l-2 border-neutral-200 pl-4">
+                  <span className="font-medium text-neutral-900">Real World:</span> {content.realWorldExample}
                 </p>
               )}
 
