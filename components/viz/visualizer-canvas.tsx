@@ -1,13 +1,21 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useEffect } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { useEffect, useRef } from 'react'
 import { bubbleSort } from '~/libs/visualizer/algorithms/sorting/bubble-sort'
 import { useVisualizerStore } from '~/libs/visualizer/store'
 
 export function VisualizerCanvas() {
-  const { array, randomizeArray, generateSteps, steps, currentStepIndex } =
-    useVisualizerStore()
+  const {
+    array,
+    randomizeArray,
+    generateSteps,
+    steps,
+    currentStepIndex,
+    playbackSpeed,
+  } = useVisualizerStore()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     randomizeArray(30)
@@ -22,6 +30,26 @@ export function VisualizerCanvas() {
   const currentStep = steps[currentStepIndex]
   const maxValue = Math.max(...array, 1)
 
+  useGSAP(
+    () => {
+      if (array.length === 0) return
+
+      gsap.to('.bar', {
+        height: (i) => `${(array[i] / maxValue) * 100}%`,
+        duration: playbackSpeed
+          ? Math.max(0.1, (1010 - playbackSpeed) / 2000)
+          : 0.2,
+        ease: 'power2.out',
+
+        overwrite: 'auto',
+      })
+    },
+    {
+      dependencies: [array, maxValue, playbackSpeed],
+      scope: containerRef,
+    }
+  )
+
   if (array.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-neutral-50">
@@ -31,7 +59,10 @@ export function VisualizerCanvas() {
   }
 
   return (
-    <div className="flex h-full w-full items-end justify-center gap-[1px] p-6 bg-neutral-50">
+    <div
+      ref={containerRef}
+      className="flex h-full w-full items-end justify-center gap-[1px] p-6 bg-neutral-50"
+    >
       {array.map((value, idx) => {
         let bgColor = 'bg-neutral-400'
 
@@ -54,13 +85,10 @@ export function VisualizerCanvas() {
         }
 
         return (
-          <motion.div
+          <div
             key={idx}
-            initial={{ height: 0 }}
-            animate={{ height: `${(value / maxValue) * 100}%` }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className={`flex-1 max-w-[20px] transition-colors duration-100 ${bgColor} relative group`}
-            style={{ minWidth: '2px' }}
+            className={`bar flex-1 max-w-[20px] transition-colors duration-100 ${bgColor} relative group`}
+            style={{ minWidth: '2px', height: '0%' }}
           >
             <span
               className={`
@@ -71,7 +99,7 @@ export function VisualizerCanvas() {
             >
               {value}
             </span>
-          </motion.div>
+          </div>
         )
       })}
     </div>

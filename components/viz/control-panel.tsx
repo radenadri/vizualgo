@@ -265,7 +265,7 @@ export function ControlPanel({
           <input
             type="range"
             min="10"
-            max="1000"
+            max="910"
             step="10"
             value={1010 - playbackSpeed}
             onChange={(e) => {
