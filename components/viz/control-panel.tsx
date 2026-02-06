@@ -1,7 +1,7 @@
 'use client'
 
-import { useVisualizerStore } from '~/libs/visualizer/store'
 import { useEffect, useState } from 'react'
+import { useVisualizerStore } from '~/libs/visualizer/store'
 import type { AlgorithmType } from '~/libs/visualizer/types'
 
 interface ControlPanelProps {
@@ -9,9 +9,12 @@ interface ControlPanelProps {
   onGenerate?: (operation?: string, payload?: any) => void
 }
 
-export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps) {
-  const { 
-    randomizeArray, 
+export function ControlPanel({
+  mode = 'sorting',
+  onGenerate,
+}: ControlPanelProps) {
+  const {
+    randomizeArray,
     resetGrid,
     nextStep,
     prevStep,
@@ -19,15 +22,16 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
     isPlaying,
     setPlaying,
     playbackSpeed,
+    setPlaybackSpeed,
     currentStepIndex,
-    steps
+    steps,
   } = useVisualizerStore()
 
   const [inputValue, setInputValue] = useState('')
 
   useEffect(() => {
     let interval: NodeJS.Timeout
-    
+
     if (isPlaying) {
       interval = setInterval(() => {
         nextStep()
@@ -62,15 +66,15 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
         const state = useVisualizerStore.getState()
         const nodeIdsInSteps = new Set(
           steps
-            .filter(s => s.type === 'create' && s.nodeId)
-            .map(s => s.nodeId)
+            .filter((s) => s.type === 'create' && s.nodeId)
+            .map((s) => s.nodeId)
         )
         const linkedListWithoutAnimatedNodes = state.linkedList.filter(
-          node => !nodeIdsInSteps.has(node.id)
+          (node) => !nodeIdsInSteps.has(node.id)
         )
-        useVisualizerStore.setState({ 
+        useVisualizerStore.setState({
           currentStepIndex: -1,
-          linkedList: linkedListWithoutAnimatedNodes
+          linkedList: linkedListWithoutAnimatedNodes,
         })
       }
       setPlaying(true)
@@ -94,7 +98,7 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
       {/* Sorting controls */}
       {mode === 'sorting' && (
         <>
-          <button 
+          <button
             onClick={() => randomizeArray()}
             className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors"
           >
@@ -102,10 +106,10 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
           </button>
           <label className="flex items-center gap-2 text-neutral-400">
             <span className="text-xs">Size</span>
-            <input 
-              type="range" 
-              min="5" 
-              max="50" 
+            <input
+              type="range"
+              min="5"
+              max="50"
               defaultValue="20"
               onChange={(e) => randomizeArray(Number(e.target.value))}
               className="w-16 accent-neutral-400"
@@ -113,10 +117,10 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
           </label>
         </>
       )}
-      
+
       {/* Pathfinding controls */}
       {mode === 'pathfinding' && (
-        <button 
+        <button
           onClick={() => resetGrid()}
           className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors"
         >
@@ -127,21 +131,23 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
       {/* Linked List controls - simplified */}
       {mode === 'linkedlist' && (
         <div className="flex items-center gap-2">
-          <input 
-            type="number" 
-            placeholder="Value" 
+          <input
+            type="number"
+            placeholder="Value"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleDataStructureAction('append')}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && handleDataStructureAction('append')
+            }
             className="bg-white border border-neutral-300 px-3 py-1.5 w-24 placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400"
           />
-          <button 
+          <button
             onClick={() => handleDataStructureAction('append')}
             className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors"
           >
             Append
           </button>
-          <button 
+          <button
             onClick={() => handleDataStructureAction('delete')}
             className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors text-neutral-400"
           >
@@ -149,25 +155,27 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
           </button>
         </div>
       )}
-      
+
       {/* BST controls - simplified */}
       {mode === 'bst' && (
         <div className="flex items-center gap-2">
-          <input 
-            type="number" 
-            placeholder="Value" 
+          <input
+            type="number"
+            placeholder="Value"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleDataStructureAction('insert')}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && handleDataStructureAction('insert')
+            }
             className="bg-white border border-neutral-300 px-3 py-1.5 w-24 placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400"
           />
-          <button 
+          <button
             onClick={() => handleDataStructureAction('insert')}
             className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors"
           >
             Insert
           </button>
-          <button 
+          <button
             onClick={() => handleDataStructureAction('search')}
             className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors text-neutral-400"
           >
@@ -177,34 +185,34 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
       )}
 
       <div className="h-4 w-px bg-neutral-200 hidden sm:block" />
-      
+
       {/* Playback controls - only show for sorting/pathfinding */}
       {(mode === 'sorting' || mode === 'pathfinding') && (
         <div className="flex items-center gap-1">
-          <button 
+          <button
             onClick={() => reset()}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors"
           >
             Reset
           </button>
-          <button 
+          <button
             onClick={prevStep}
             disabled={isPlaying || currentStepIndex <= -1}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
           >
             Prev
           </button>
-          <button 
+          <button
             onClick={handlePlay}
             className={`px-4 py-1.5 border transition-colors ${
-              isPlaying 
-                ? 'border-amber-500 text-amber-600' 
+              isPlaying
+                ? 'border-amber-500 text-amber-600'
                 : 'border-neutral-400 text-neutral-700 hover:bg-neutral-100'
             }`}
           >
             {isPlaying ? 'Pause' : 'Play'}
           </button>
-          <button 
+          <button
             onClick={nextStep}
             disabled={isPlaying || currentStepIndex >= steps.length - 1}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
@@ -217,31 +225,31 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
       {/* Playback controls for data structures */}
       {(mode === 'linkedlist' || mode === 'bst') && (
         <div className="flex items-center gap-1">
-          <button 
+          <button
             onClick={() => reset()}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors"
           >
             Clear All
           </button>
-          <button 
+          <button
             onClick={prevStep}
             disabled={isPlaying || currentStepIndex <= -1}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
           >
             Prev
           </button>
-          <button 
+          <button
             onClick={handleDataStructurePlay}
             disabled={steps.length === 0}
             className={`px-4 py-1.5 border transition-colors disabled:opacity-30 ${
-              isPlaying 
-                ? 'border-amber-500 text-amber-600' 
+              isPlaying
+                ? 'border-amber-500 text-amber-600'
                 : 'border-neutral-400 text-neutral-700 hover:bg-neutral-100'
             }`}
           >
             {isPlaying ? 'Pause' : 'Play'}
           </button>
-          <button 
+          <button
             onClick={nextStep}
             disabled={isPlaying || currentStepIndex >= steps.length - 1}
             className="px-2 py-1.5 text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-30"
@@ -251,8 +259,28 @@ export function ControlPanel({ mode = 'sorting', onGenerate }: ControlPanelProps
         </div>
       )}
 
-      <span className="ml-auto text-xs text-neutral-400 font-mono">
-        {Math.max(0, currentStepIndex + 1)}/{steps.length}
+      <span className="ml-auto flex items-center gap-3">
+        <div className="flex items-center gap-2 group relative">
+          <span className="text-xs text-neutral-400">Speed</span>
+          <input
+            type="range"
+            min="10"
+            max="1000"
+            step="10"
+            value={1010 - playbackSpeed}
+            onChange={(e) => {
+              setPlaybackSpeed(1010 - Number(e.target.value))
+            }}
+            className="w-20 accent-neutral-400 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
+          />
+          <span className="text-xs text-neutral-400 min-w-[3ch] text-right">
+            {Math.round(1000 / playbackSpeed)}x
+          </span>
+        </div>
+
+        <span className="text-xs text-neutral-400 font-mono pl-3 border-l border-neutral-200">
+          {Math.max(0, currentStepIndex + 1)}/{steps.length}
+        </span>
       </span>
     </div>
   )
