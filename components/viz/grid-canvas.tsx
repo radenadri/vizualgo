@@ -36,12 +36,13 @@ export function GridCanvas() {
         {grid.map((row, rowIdx) => (
           <div key={rowIdx} className="flex gap-px">
             {row.map((node, colIdx) => {
-              let bgClass = 'bg-white' // Default Empty
-              
-              if (node.isWall) bgClass = 'bg-neutral-400'
+              let bgClass = 'bg-neutral-100' // Base corridor
+
+              if (node.isWall) bgClass = 'bg-neutral-500'
+              if (node.isFrontier) bgClass = 'bg-sky-300'
+              if (node.isVisited) bgClass = 'bg-indigo-300'
               if (node.isPath) bgClass = 'bg-amber-400'
-              else if (node.isVisited) bgClass = 'bg-indigo-200'
-              
+
               if (node.isStart) bgClass = 'bg-emerald-500'
               if (node.isEnd) bgClass = 'bg-rose-500'
 

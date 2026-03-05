@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { generateMaze } from '../algorithms/pathfinding/generate-maze'
 import type { AnimationStep, SortingAlgorithm, PathfindingAlgorithm, GridNode, LinkedListNode, LinkedListAlgorithm, BSTNode, BSTAlgorithm } from '../types'
 
 interface VisualizerState {
@@ -13,6 +14,8 @@ interface VisualizerState {
   isMousePressed: boolean
   setGrid: (grid: GridNode[][]) => void
   resetGrid: () => void
+  generateMazeGrid: (seed?: number) => void
+  clearPathfindingStates: () => void
   toggleWall: (row: number, col: number) => void
   setMousePressed: (isPressed: boolean) => void
   startNode: { row: number, col: number }
@@ -64,6 +67,8 @@ const createNode = (col: number, row: number, startNode: { row: number, col: num
     isWall: false,
     isVisited: false,
     isPath: false,
+    isFrontier: false,
+    frontierOrder: undefined,
     distance: Infinity,
     previousNode: null,
   }
@@ -92,18 +97,26 @@ const applyStep = (arr: number[], grid: GridNode[][], step: AnimationStep) => {
     const [idx] = step.indices
     const [val] = step.snapshot
     arr[idx] = val
+  } else if (step.type === 'explore') {
+    const [row, col] = step.indices
+    if (grid[row] && grid[row][col]) {
+      const node = grid[row][col]
+      node.isFrontier = true
+      node.frontierOrder ??= 0
+    }
   } else if (step.type === 'visit') {
     const [row, col] = step.indices
     if (grid[row] && grid[row][col]) {
-      grid[row][col].isVisited = true
-      // Logic for 'unvisiting' if we were reversible? 
-      // usually we just re-render. 
-      // But for persistent state in store:
+      const node = grid[row][col]
+      node.isFrontier = false
+      node.isVisited = true
     }
   } else if (step.type === 'path') {
     const [row, col] = step.indices
     if (grid[row] && grid[row][col]) {
-      grid[row][col].isPath = true
+      const node = grid[row][col]
+      node.isFrontier = false
+      node.isPath = true
     }
   }
 }
@@ -143,7 +156,48 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     const { startNode, endNode } = get()
     // Re-create generic grid
     const grid = getInitialGrid(DEFAULT_ROWS, DEFAULT_COLS, startNode, endNode)
-    set({ grid, steps: [], currentStepIndex: -1, isPathFound: false })
+    set({ grid, steps: [], currentStepIndex: -1, isPathFound: false, isPlaying: false })
+  },
+
+  generateMazeGrid: (seed) => {
+    const { startNode, endNode } = get()
+    const grid = generateMaze({
+      rows: DEFAULT_ROWS,
+      cols: DEFAULT_COLS,
+      start: startNode,
+      end: endNode,
+      seed,
+    })
+
+    set({
+      grid,
+      steps: [],
+      currentStepIndex: -1,
+      isPathFound: false,
+      isPlaying: false,
+    })
+  },
+
+  clearPathfindingStates: () => {
+    const cleanedGrid = get().grid.map((row) =>
+      row.map((node) => ({
+        ...node,
+        isVisited: false,
+        isPath: false,
+        isFrontier: false,
+        frontierOrder: undefined,
+        distance: Infinity,
+        previousNode: null,
+      }))
+    )
+
+    set({
+      grid: cleanedGrid,
+      steps: [],
+      currentStepIndex: -1,
+      isPathFound: false,
+      isPlaying: false,
+    })
   },
 
   toggleWall: (row, col) => {
@@ -247,15 +301,19 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       const newGrid = [...grid]
       const newLinkedList = [...linkedList]
 
-      if (step.type === 'visit' || step.type === 'path') {
+      if (step.type === 'explore' || step.type === 'visit' || step.type === 'path') {
         const [r, c] = step.indices
         if (newGrid[r]) {
           newGrid[r] = [...newGrid[r]]
           if (newGrid[r][c]) {
+            const nextFrontierOrder = step.type === 'explore' ? nextIndex : newGrid[r][c].frontierOrder
+
             newGrid[r][c] = {
               ...newGrid[r][c],
+              isFrontier: step.type === 'explore',
+              frontierOrder: nextFrontierOrder,
               isVisited: step.type === 'visit' || newGrid[r][c].isVisited,
-              isPath: step.type === 'path' || newGrid[r][c].isPath
+              isPath: step.type === 'path' || newGrid[r][c].isPath,
             }
           }
         }
@@ -359,6 +417,8 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       ...node,
       isVisited: false,
       isPath: false,
+      isFrontier: false,
+      frontierOrder: undefined,
       distance: Infinity,
       previousNode: null
     })))
@@ -388,7 +448,11 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     const newGrid = get().grid.map(row => row.map(node => ({
       ...node,
       isVisited: false,
-      isPath: false
+      isPath: false,
+      isFrontier: false,
+      frontierOrder: undefined,
+      distance: Infinity,
+      previousNode: null
     })))
 
     for (let i = 0; i <= limitIndex; i++) {
