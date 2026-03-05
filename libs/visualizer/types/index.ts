@@ -40,6 +40,8 @@ export interface GridNode {
   isWall: boolean
   isVisited: boolean
   isPath: boolean
+  isFrontier: boolean
+  frontierOrder?: number
   distance: number
   previousNode: GridNode | null
 }

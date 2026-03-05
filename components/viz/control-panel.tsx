@@ -16,6 +16,8 @@ export function ControlPanel({
   const {
     randomizeArray,
     resetGrid,
+    generateMazeGrid,
+    clearPathfindingStates,
     nextStep,
     prevStep,
     reset,
@@ -120,12 +122,29 @@ export function ControlPanel({
 
       {/* Pathfinding controls */}
       {mode === 'pathfinding' && (
-        <button
-          onClick={() => resetGrid()}
-          className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors"
-        >
-          Clear
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => generateMazeGrid()}
+            disabled={isPlaying}
+            className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors disabled:opacity-30"
+          >
+            Generate Maze
+          </button>
+          <button
+            onClick={() => clearPathfindingStates()}
+            disabled={isPlaying}
+            className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors disabled:opacity-30"
+          >
+            Clear Search
+          </button>
+          <button
+            onClick={() => resetGrid()}
+            disabled={isPlaying}
+            className="px-3 py-1.5 border border-neutral-300 hover:bg-neutral-100 transition-colors disabled:opacity-30"
+          >
+            Clear Grid
+          </button>
+        </div>
       )}
 
       {/* Linked List controls - simplified */}
